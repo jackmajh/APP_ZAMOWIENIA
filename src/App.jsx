@@ -49,7 +49,7 @@ const App = () => {
           id: idx + 1,
           nazwa: p['Nazwa produktu'] || p.Nazwa || '',
           sku: p['Kod SKU'] || p.SKU || '',
-          cena: parseFloat(p['Cena za jednostkę'] || p.Cena || 0),
+          cena: parseFloat(p['Cena za jednostke'] || p.Cena || 0),
           dostepnosc: p['Dostepność'] || p.Dostepnosc || 'Tak',
           jednostka: p.Jednostka || 'szt'
         }));
