@@ -49,8 +49,8 @@ const App = () => {
           id: idx + 1,
           nazwa: p['Nazwa produktu'] || p.Nazwa || '',
           sku: p['Kod SKU'] || p.SKU || '',
-          cena: parseFloat(p['Cena za jednostkę'] || p.Cena || 0),
-          dostepnosc: p['Dostępność'] || p.Dostepnosc || 'Tak',
+          cena: parseFloat(p['Cena za jednostke'] || p.Cena || 0),
+          dostepnosc: p['Dostepnosc'] || p.Dostepnosc || 'Tak',
           jednostka: p.Jednostka || 'szt'
         }));
         setProducts(mapped);
