@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AlertCircle, Package, ShoppingCart, Plus, Search, Check, X, LogOut, User, Lock, Loader } from 'lucide-react';
 
 // Konfiguracja API - ZMIEŃ NA SWOJE URLe z n8n
-const API_BASE = 'https://aneta147-20147.wykr.es/webhook-test';
+const API_BASE = 'https://aneta147-20147.wykr.es/webhook';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
