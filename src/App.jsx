@@ -260,109 +260,66 @@ const App = () => {
     (o.status && o.status.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
- <div className="mt-4 text-center">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowRegister(!showRegister);
-                  setLoginError('');
-                  setRegisterError('');
-                }}
-                className="text-green-600 hover:text-green-700 text-sm font-medium"
-                disabled={isLoading}
-              >
-                {showRegister ? 'Masz już konto? Zaloguj się' : 'Nie masz konta? Zarejestruj się'}
-              </button>
-            </div>
+const handleRegister = async () => {
+  setRegisterError('');
+  
+  // Walidacja
+  if (!registerData.nazwa || !registerData.email || !registerData.haslo) {
+    setRegisterError('Wypełnij wszystkie wymagane pola');
+    return;
+  }
+  
+  if (registerData.haslo !== registerData.hasloPowtorz) {
+    setRegisterError('Hasła nie są identyczne');
+    return;
+  }
+  
+  if (registerData.haslo.length < 4) {
+    setRegisterError('Hasło musi mieć minimum 4 znaki');
+    return;
+  }
+  
+  setIsLoading(true);
+  
+  try {
+    const response = await fetch(`${API_BASE}/rejestracja`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        nazwa: registerData.nazwa,
+        email: registerData.email,
+        haslo: registerData.haslo,
+        adres: registerData.adres,
+        telefon: registerData.telefon
+      })
+    });
 
-            {showRegister && (
-              <div className="mt-6 border-t pt-6">
-                <h3 className="text-lg font-bold mb-4 text-center">Rejestracja</h3>
-                
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Nazwa firmy / Imię i nazwisko *"
-                    className="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    value={registerData.nazwa}
-                    onChange={(e) => setRegisterData({...registerData, nazwa: e.target.value})}
-                    disabled={isLoading}
-                  />
-                  
-                  <input
-                    type="email"
-                    placeholder="Email *"
-                    className="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    value={registerData.email}
-                    onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
-                    disabled={isLoading}
-                  />
-                  
-                  <input
-                    type="password"
-                    placeholder="Hasło (min. 4 znaki) *"
-                    className="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    value={registerData.haslo}
-                    onChange={(e) => setRegisterData({...registerData, haslo: e.target.value})}
-                    disabled={isLoading}
-                  />
-                  
-                  <input
-                    type="password"
-                    placeholder="Powtórz hasło *"
-                    className="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    value={registerData.hasloPowtorz}
-                    onChange={(e) => setRegisterData({...registerData, hasloPowtorz: e.target.value})}
-                    disabled={isLoading}
-                  />
-                  
-                  <input
-                    type="text"
-                    placeholder="Adres (opcjonalnie)"
-                    className="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    value={registerData.adres}
-                    onChange={(e) => setRegisterData({...registerData, adres: e.target.value})}
-                    disabled={isLoading}
-                  />
-                  
-                  <input
-                    type="tel"
-                    placeholder="Telefon (opcjonalnie)"
-                    className="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    value={registerData.telefon}
-                    onChange={(e) => setRegisterData({...registerData, telefon: e.target.value})}
-                    disabled={isLoading}
-                  />
-                  
-                  {registerError && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
-                      {registerError}
-                    </div>
-                  )}
-                  
-                  <button
-                    type="button"
-                    onClick={handleRegister}
-                    className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center gap-2"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader className="w-4 h-4 animate-spin" />
-                        Rejestrowanie...
-                      </>
-                    ) : (
-                      'Zarejestruj się'
-                    )}
-                  </button>
-                  
-                  <p className="text-xs text-gray-500 text-center">
-                    * Pola wymagane
-                  </p>
-                </div>
-              </div>
-            )}
-
+    const data = await response.json();
+    
+    if (data.success) {
+      alert('Konto zostało utworzone! Możesz się teraz zalogować.');
+      setShowRegister(false);
+      setLoginEmail(registerData.email);
+      setRegisterData({
+        nazwa: '',
+        email: '',
+        haslo: '',
+        hasloPowtorz: '',
+        adres: '',
+        telefon: ''
+      });
+    } else {
+      setRegisterError(data.error || 'Błąd rejestracji');
+    }
+  } catch (error) {
+    console.error('Błąd rejestracji:', error);
+    setRegisterError('Błąd połączenia z serwerem');
+  } finally {
+    setIsLoading(false);
+  }
+};
   
   if (!isLoggedIn) {
     return (
