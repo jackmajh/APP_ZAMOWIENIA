@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, Package, ShoppingCart, Plus, Search, Check, X, LogOut, User, Lock, Loader } from 'lucide-react';
 
-// Konfiguracja API - ZMIEŃ NA SWOJE URLe z n8n
-const API_BASE = 'https://aneta147-20147.wykr.es/webhook';
-//const API_BASE = 'https://aneta147-20147.wykr.es/webhook-test';
+// Konfiguracja API - użyj zmiennej środowiskowej
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://aneta147-20147.wykr.es/webhook';
+
+// Opcjonalne: logowanie ostrzeżenia w konsoli
+if (!import.meta.env.VITE_API_BASE) {
+  console.warn('⚠️ VITE_API_BASE nie jest ustawione w zmiennych środowiskowych');
+}
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -12,6 +16,12 @@ const App = () => {
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Nowe: ustawienia aplikacji z Google Sheets
+  const [appSettings, setAppSettings] = useState({
+    nazwaApp: 'Zamówienia Pasz',
+    nazwaFirmy: ''
+  });
 
   const [activeTab, setActiveTab] = useState('orders');
   const [orders, setOrders] = useState([]);
@@ -24,6 +34,11 @@ const App = () => {
   });
 
   const [selectedProducts, setSelectedProducts] = useState([]);
+
+  // Załaduj ustawienia aplikacji przy starcie
+  useEffect(() => {
+    fetchSettings();
+  }, []);
 
   // Załaduj produkty
   useEffect(() => {
@@ -40,6 +55,23 @@ const App = () => {
     }
   }, [currentUser]);
 
+  // NOWA FUNKCJA: Pobierz ustawienia z Google Sheets
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/ustawienia`);
+      const data = await response.json();
+      if (data.success && data.ustawienia) {
+        setAppSettings({
+          nazwaApp: data.ustawienia.Nazwa_app || 'Zamówienia Pasz',
+          nazwaFirmy: data.ustawienia.Nazwa_firmy || ''
+        });
+      }
+    } catch (error) {
+      console.error('Błąd pobierania ustawień:', error);
+      // Używamy domyślnych wartości jeśli błąd
+    }
+  };
+
   const fetchProducts = async () => {
     try {
       const response = await fetch(`${API_BASE}/produkty`);
@@ -50,7 +82,7 @@ const App = () => {
           nazwa: p['Nazwa produktu'] || p.Nazwa || '',
           sku: p['Kod SKU'] || p.SKU || '',
           cena: parseFloat(p['Cena za jednostke'] || p.Cena || 0),
-          dostepnosc: p['Dostepność'] || p.Dostepnosc || 'Tak',
+          dostepnosc: p['Dostępność'] || p.Dostepnosc || 'Tak',
           jednostka: p.Jednostka || 'szt'
         }));
         setProducts(mapped);
@@ -65,18 +97,18 @@ const App = () => {
       const response = await fetch(`${API_BASE}/zamowienia?email=${encodeURIComponent(currentUser.email)}`);
       const data = await response.json();
       if (data.success && Array.isArray(data.zamowienia)) {
-   const mapped = data.zamowienia.map((o, idx) => ({
-  id: idx + 1,
-  data: o.Data || '',
-  numer: String(o.Numer_zamowienia || ''),  // ← KONWERSJA NA STRING!
-  klient: o.Imie_Nazwisko || '',
-  email: o.Email || '',
-  telefon: String(o.Telefon || ''),
-  adres: o.Adres_dostawy || '',
-  produkty: o.Produkt || o.Produkty || '',
-  suma: parseFloat(o.Wartosc_linii || 0),  // ← ZMIANA TUTAJ!
-  status: o.Status || 'W realizacji'
-}));
+        const mapped = data.zamowienia.map((o, idx) => ({
+          id: idx + 1,
+          data: o.Data || '',
+          numer: String(o.Numer_zamowienia || ''),
+          klient: o.Imie_Nazwisko || '',
+          email: o.Email || '',
+          telefon: String(o.Telefon || ''),
+          adres: o.Adres_dostawy || '',
+          produkty: o.Produkt || o.Produkty || '',
+          suma: parseFloat(o.Wartosc_linii || 0),
+          status: o.Status || 'W realizacji'
+        }));
         setOrders(mapped);
       }
     } catch (error) {
@@ -224,8 +256,8 @@ const App = () => {
             <div className="bg-green-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
               <Package className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Zamówienia Pasz</h1>
-            <p className="text-gray-600">Panel klienta</p>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">{appSettings.nazwaApp}</h1>
+            <p className="text-gray-600">{appSettings.nazwaFirmy || 'Panel klienta'}</p>
           </div>
 
           <div className="space-y-4">
@@ -302,7 +334,7 @@ const App = () => {
       <div className="bg-green-600 text-white p-4 shadow-lg">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-xl font-bold">📦 Zamówienia Pasz</h1>
+            <h1 className="text-xl font-bold">📦 {appSettings.nazwaApp}</h1>
             <p className="text-sm text-green-100">{currentUser.nazwa}</p>
           </div>
           <button
