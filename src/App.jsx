@@ -25,7 +25,8 @@ const App = () => {
     haslo: '',
     hasloPowtorz: '',
     adres: '',
-    telefon: ''
+    telefon: '',
+    zgoda: false 
   });
   const [registerError, setRegisterError] = useState('');
 
@@ -268,6 +269,11 @@ const handleRegister = async () => {
     setRegisterError('Wypełnij wszystkie wymagane pola');
     return;
   }
+
+  if (!registerData.zgoda) {
+  setRegisterError('Musisz wyrazić zgodę na przetwarzanie danych osobowych');
+  return;
+  }
   
   if (registerData.haslo !== registerData.hasloPowtorz) {
     setRegisterError('Hasła nie są identyczne');
@@ -292,7 +298,8 @@ const handleRegister = async () => {
         email: registerData.email,
         haslo: registerData.haslo,
         adres: registerData.adres,
-        telefon: registerData.telefon
+        telefon: registerData.telefon,
+        zgoda: registerData.zgoda ? 'TAK' : 'NIE'  // DODAJ TO!
       })
     });
 
@@ -308,7 +315,8 @@ const handleRegister = async () => {
         haslo: '',
         hasloPowtorz: '',
         adres: '',
-        telefon: ''
+        telefon: '',
+        zgoda: false  // DODAJ TO!
       });
     } else {
       setRegisterError(data.error || 'Błąd rejestracji');
@@ -461,7 +469,23 @@ const handleRegister = async () => {
                     onChange={(e) => setRegisterData({...registerData, telefon: e.target.value})}
                     disabled={isLoading}
                   />
-                  
+                  <div className="flex items-start gap-2 mt-2">
+                    <input
+                      type="checkbox"
+                      id="zgoda"
+                      checked={registerData.zgoda}
+                      onChange={(e) => setRegisterData({...registerData, zgoda: e.target.checked})}
+                      className="mt-1 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                      disabled={isLoading}
+                    />
+                    <label htmlFor="zgoda" className="text-xs text-gray-700">
+                      Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z{' '}
+                      <a href="#" className="text-green-600 hover:underline">
+                        polityką prywatności
+                      </a>
+                      {' '}*
+                    </label>
+                  </div>                  
                   {registerError && (
                     <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
                       {registerError}
