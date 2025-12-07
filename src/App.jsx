@@ -172,6 +172,7 @@ const App = () => {
         adresDostawy: newOrder.adresDostawy,
         produkty: selectedProducts.map(p => ({
           nazwa: p.nazwa,
+          sku: p.sku,
           ilosc: p.ilosc,
           cena: p.cena
         })),
