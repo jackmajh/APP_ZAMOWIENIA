@@ -65,18 +65,18 @@ const App = () => {
       const response = await fetch(`${API_BASE}/zamowienia?email=${encodeURIComponent(currentUser.email)}`);
       const data = await response.json();
       if (data.success && Array.isArray(data.zamowienia)) {
-        const mapped = data.zamowienia.map((o, idx) => ({
-          id: idx + 1,
-          data: o.Data || '',
-          numer: o.Numer_zamowienia || '',
-          klient: o.Imie_Nazwisko || o['Imie_Nazwisko'] || '',
-          email: o.Email || '',
-          telefon: o.Telefon || '',
-          adres: o.Adres_dostawy || o['Adres_dostawy'] || '',
-          produkty: o.Produkty || '',
-          suma: parseFloat(o.Suma || 0),
-          status: o.Status || 'W realizacji'
-        }));
+   const mapped = data.zamowienia.map((o, idx) => ({
+  id: idx + 1,
+  data: o.Data || '',
+  numer: String(o.Numer_zamowienia || ''),  // ← KONWERSJA NA STRING!
+  klient: o.Imie_Nazwisko || '',
+  email: o.Email || '',
+  telefon: String(o.Telefon || ''),
+  adres: o.Adres_dostawy || '',
+  produkty: o.Produkt || o.Produkty || '',
+  suma: parseFloat(o.Wartosc_calkowita_zamowienia || o.Suma || 0),
+  status: o.Status || 'W realizacji'
+}));
         setOrders(mapped);
       }
     } catch (error) {
