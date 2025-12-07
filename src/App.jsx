@@ -74,7 +74,7 @@ const App = () => {
   telefon: String(o.Telefon || ''),
   adres: o.Adres_dostawy || '',
   produkty: o.Produkt || o.Produkty || '',
-  suma: parseFloat(o.Wartosc_calkowita_zamowienia || o.Suma || 0),
+  suma: parseFloat(o.Wartosc_linii || 0),  // ← ZMIANA TUTAJ!
   status: o.Status || 'W realizacji'
 }));
         setOrders(mapped);
