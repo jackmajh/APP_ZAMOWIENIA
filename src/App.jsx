@@ -17,6 +17,18 @@ const App = () => {
   const [loginError, setLoginError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+    // Nowe: state dla rejestracji
+  const [showRegister, setShowRegister] = useState(false);
+  const [registerData, setRegisterData] = useState({
+    nazwa: '',
+    email: '',
+    haslo: '',
+    hasloPowtorz: '',
+    adres: '',
+    telefon: ''
+  });
+  const [registerError, setRegisterError] = useState('');
+
   // Nowe: ustawienia aplikacji z Google Sheets
   const [appSettings, setAppSettings] = useState({
     nazwaApp: 'Zamówienia Pasz',
